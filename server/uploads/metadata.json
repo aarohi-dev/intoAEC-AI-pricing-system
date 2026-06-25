@@ -1,0 +1,18 @@
+{
+    "3a4dcf9f-918e-4129-a99e-e310fc901197": {
+        "documentId": "3a4dcf9f-918e-4129-a99e-e310fc901197",
+        "filename": "estimate_test.pdf",
+        "contentType": "application/pdf",
+        "filePath": "E:\\GitHub\\intoAEC-AI-pricing-system\\server\\uploads\\3a4dcf9f-918e-4129-a99e-e310fc901197.pdf",
+        "status": "Completed",
+        "outputPath": "E:\\GitHub\\intoAEC-AI-pricing-system\\server\\output\\3a4dcf9f-918e-4129-a99e-e310fc901197.json"
+    },
+    "5e2dfc33-416a-4f6e-8cc9-1cb8e8c2ad61": {
+        "documentId": "5e2dfc33-416a-4f6e-8cc9-1cb8e8c2ad61",
+        "filename": "estimate_test.pdf",
+        "contentType": "application/pdf",
+        "filePath": "E:\\GitHub\\intoAEC-AI-pricing-system\\server\\uploads\\5e2dfc33-416a-4f6e-8cc9-1cb8e8c2ad61.pdf",
+        "status": "Completed",
+        "outputPath": "E:\\GitHub\\intoAEC-AI-pricing-system\\server\\output\\5e2dfc33-416a-4f6e-8cc9-1cb8e8c2ad61.json"
+    }
+}

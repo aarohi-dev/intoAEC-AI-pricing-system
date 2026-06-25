@@ -1,0 +1,20 @@
+{
+    "documentName": "estimate_test.pdf",
+    "items": [
+        {
+            "description": "Concrete",
+            "quantity": 100.0,
+            "unit": "m3"
+        },
+        {
+            "description": "Steel Reinforcement",
+            "quantity": 5.5,
+            "unit": "tons"
+        },
+        {
+            "description": "Formwork",
+            "quantity": 250.0,
+            "unit": "m2"
+        }
+    ]
+}
