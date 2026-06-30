@@ -27,21 +27,10 @@ async def get_result(document_id: str):
             detail=f"Document with ID '{document_id}' not found."
         )
 
-    # 3. Return mock data as fallback if document exists but JSON doesn't
-    logger.info(f"JSON output not found for document {document_id}. Returning mock fallback data.")
-    mock_fallback = {
-        "documentName": record["filename"],
-        "items": [
-            {
-                "description": "Concrete (Mock)",
-                "quantity": 100.0,
-                "unit": "m3"
-            },
-            {
-                "description": "Steel Reinforcement (Mock)",
-                "quantity": 5.5,
-                "unit": "tons"
-            }
-        ]
-    }
-    return ResultResponse(**mock_fallback)
+    # 3. Raise error if document exists but JSON doesn't (mock fallback removed)
+    status_str = record.get("status", "Unknown")
+    logger.warning(f"JSON output not found for document {document_id} (Status: {status_str})")
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail=f"Estimate results are not available. Processing status is {status_str}."
+    )

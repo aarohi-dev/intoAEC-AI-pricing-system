@@ -1,24 +1,58 @@
 import os
 import logging
+import asyncio
 from pathlib import Path
-# pyrefly: ignore [missing-import]
-from mistralai.client import Mistral
+from PIL import Image
+
+try:
+    import pytesseract
+except ImportError:
+    pytesseract = None
+
+import google.generativeai as genai
+from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
+load_dotenv()
+
+# Setup Tesseract Path if on Windows (fallback path)
+if os.name == 'nt' and pytesseract:
+    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+def get_gemini_api_key() -> str:
+    """
+    Retrieve Gemini API Key from environment or fallback to parsing .env file directly.
+    """
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        # Robust lookup in common locations
+        for env_path in [Path(".env"), Path("../.env"), Path(__file__).resolve().parent.parent / ".env"]:
+            if env_path.exists():
+                try:
+                    with open(env_path, "r", encoding="utf-8") as f:
+                        for line in f:
+                            if line.strip().startswith("GEMINI_API_KEY"):
+                                api_key = line.strip().split("=", 1)[1].strip(" '\"")
+                                break
+                    if api_key:
+                        break
+                except Exception as e:
+                    logger.warning(f"Failed to read {env_path} for GEMINI_API_KEY: {e}")
+    return api_key or ""
 
 class OCRService:
     """
     Service responsible for extracting text and tabular structures from PDF or image files.
-    Integrates with the Mistral OCR API using the 'mistral-ocr-latest' model.
+    Integrates with the Gemini Multimodal API using the 'gemini-2.5-flash' model.
     """
 
     def __init__(self):
-        self.api_key = os.environ.get("MISTRAL_API_KEY")
-        self.model = "mistral-ocr-latest"
+        self.api_key = get_gemini_api_key()
+        self.model_name = "gemini-2.5-flash"
 
     async def extract_text(self, file_path: str) -> dict:
         """
-        Uploads the file to Mistral AI and processes it using Mistral OCR.
+        Processes the file (PDF or image) using the Gemini API.
 
         Args:
             file_path (str): The physical path to the uploaded PDF or image file.
@@ -31,68 +65,67 @@ class OCRService:
                 }
 
         Raises:
-            ValueError: If MISTRAL_API_KEY environment variable is not configured.
-            Exception: Any network or API level exceptions from the Mistral SDK.
+            ValueError: If GEMINI_API_KEY environment variable is not configured.
+            Exception: Any network or API level exceptions from the Gemini SDK.
         """
         if not self.api_key:
-            logger.warning("Mistral API key is missing. Cannot perform OCR.")
+            logger.warning("Gemini API key is missing. Cannot perform OCR.")
             raise ValueError(
-                "MISTRAL_API_KEY environment variable is not set. "
-                "Please set this key to use the Mistral OCR API."
+                "GEMINI_API_KEY environment variable is not set. "
+                "Please set this key to use the Gemini API."
             )
 
-        logger.info(f"Uploading file '{file_path}' to Mistral Files API...")
+        logger.info(f"Processing file '{file_path}' with Gemini Multimodal API...")
         path = Path(file_path)
         if not path.exists():
             raise FileNotFoundError(f"File not found: {file_path}")
 
-        # Initialize the Mistral client
-        # In mistralai 2.5.0+, the Mistral client manages resource cleanup
-        client = Mistral(api_key=self.api_key)
-
         try:
-            # 1. Read file bytes and upload to Mistral
-            with open(path, "rb") as f:
-                file_bytes = f.read()
+            # Configure Gemini Client
+            genai.configure(api_key=self.api_key)
+            model = genai.GenerativeModel(self.model_name)
 
-            uploaded_file = await client.files.upload_async(
-                file={
-                    "file_name": path.name,
-                    "content": file_bytes,
-                },
-                purpose="ocr"
-            )
-            logger.info(f"File uploaded successfully. Mistral File ID: {uploaded_file.id}")
+            prompt = """
+            You are an expert OCR engine specializing in construction estimates and bills of quantities.
+            Extract all text, headers, numbers, and layout elements from this document.
+            If there are any tables, you MUST format them as markdown tables.
+            Do not skip any section, column, row, or details. Do not summarize.
+            Extract the text exactly as it appears.
+            """
 
-            # 2. Trigger OCR processing
-            logger.info(f"Triggering Mistral OCR with model '{self.model}'...")
-            res = await client.ocr.process_async(
-                model=self.model,
-                document={
-                    "type": "file_id",
-                    "file_id": uploaded_file.id
-                }
-            )
-            logger.info(f"Mistral OCR process completed successfully for {file_path}.")
+            suffix = path.suffix.lower()
+            if suffix == ".pdf":
+                # For PDF, use the Gemini File API (via genai.upload_file)
+                logger.info(f"Uploading PDF to Gemini File API: {path.name}")
+                uploaded_file = await asyncio.to_thread(genai.upload_file, path)
+                logger.info(f"PDF uploaded. Name: {uploaded_file.name}, URI: {uploaded_file.uri}")
 
-            # 3. Extract text/markdown from pages
-            raw_text_parts = []
-            for page in res.pages:
-                if hasattr(page, 'markdown') and page.markdown:
-                    raw_text_parts.append(page.markdown)
-                elif hasattr(page, 'text') and page.text:
-                    raw_text_parts.append(page.text)
-            
-            raw_text = "\n\n".join(raw_text_parts)
+                try:
+                    response = await asyncio.to_thread(
+                        model.generate_content,
+                        [prompt, uploaded_file]
+                    )
+                finally:
+                    # Clean up the file from Google servers
+                    logger.info(f"Cleaning up uploaded file: {uploaded_file.name}")
+                    await asyncio.to_thread(uploaded_file.delete)
+            else:
+                # For images, open using PIL to pass directly to generate_content
+                logger.info(f"Loading image using PIL: {path.name}")
+                img_payload = await asyncio.to_thread(Image.open, path)
+                response = await asyncio.to_thread(
+                    model.generate_content,
+                    [prompt, img_payload]
+                )
 
-            # In Mistral OCR, tables are represented inside markdown as markdown tables.
-            # We will return the raw markdown text and set tables as empty or placeholders
-            # for subsequent parser logic.
+            raw_text = response.text
+            logger.info(f"OCR successfully completed for {file_path}.")
+
             return {
                 "raw_text": raw_text,
                 "tables": []
             }
 
         except Exception as e:
-            logger.error(f"Error during Mistral OCR invocation: {str(e)}", exc_info=True)
+            logger.error(f"Error during Gemini OCR invocation: {str(e)}", exc_info=True)
             raise e
