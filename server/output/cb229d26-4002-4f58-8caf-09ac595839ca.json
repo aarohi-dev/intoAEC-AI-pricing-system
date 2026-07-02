@@ -1,0 +1,65 @@
+{
+    "metadata": {
+        "documentId": "cb229d26-4002-4f58-8caf-09ac595839ca",
+        "documentType": "Image",
+        "pages": 1
+    },
+    "sections": [
+        {
+            "name": "Work Details",
+            "items": [
+                {
+                    "itemNumber": 1,
+                    "description": "Labourers",
+                    "normalizedDescription": "General Labour",
+                    "category": "General",
+                    "aiSuggestedRate": 35.0,
+                    "amount": null,
+                    "confidence": 0.95,
+                    "quantity": 4.0,
+                    "rate": 35.0,
+                    "unit": null,
+                    "validation": {
+                        "amountValid": true,
+                        "duplicate": false,
+                        "unitValid": true
+                    }
+                },
+                {
+                    "itemNumber": 2,
+                    "description": "Site supervisor - Supervisor for all labour on site",
+                    "normalizedDescription": "Site Supervisor",
+                    "category": "General",
+                    "aiSuggestedRate": 90.0,
+                    "amount": null,
+                    "confidence": 0.95,
+                    "quantity": 1.0,
+                    "rate": 90.0,
+                    "unit": null,
+                    "validation": {
+                        "amountValid": true,
+                        "duplicate": false,
+                        "unitValid": true
+                    }
+                },
+                {
+                    "itemNumber": 3,
+                    "description": "Electrician - Qualified tradesman",
+                    "normalizedDescription": "Electrician",
+                    "category": "Electrical",
+                    "aiSuggestedRate": 100.0,
+                    "amount": null,
+                    "confidence": 0.95,
+                    "quantity": 1.0,
+                    "rate": 100.0,
+                    "unit": null,
+                    "validation": {
+                        "amountValid": true,
+                        "duplicate": false,
+                        "unitValid": true
+                    }
+                }
+            ]
+        }
+    ]
+}

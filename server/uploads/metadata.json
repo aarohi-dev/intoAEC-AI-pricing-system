@@ -110,5 +110,29 @@
         "filePath": "E:\\GitHub\\intoAEC-AI-pricing-system\\server\\uploads\\c7072b58-47ff-414e-99cc-cbd481a77538.pdf",
         "status": "Completed",
         "outputPath": "E:\\GitHub\\intoAEC-AI-pricing-system\\server\\output\\c7072b58-47ff-414e-99cc-cbd481a77538.json"
+    },
+    "883e9d4d-9b1a-4f9b-9042-8b783e779fd7": {
+        "documentId": "883e9d4d-9b1a-4f9b-9042-8b783e779fd7",
+        "filename": "Construction-Work-Order-Format-02.pdf",
+        "contentType": "application/pdf",
+        "filePath": "E:\\GitHub\\intoAEC-AI-pricing-system\\server\\uploads\\883e9d4d-9b1a-4f9b-9042-8b783e779fd7.pdf",
+        "status": "Failed",
+        "outputPath": "E:\\GitHub\\intoAEC-AI-pricing-system\\server\\output\\883e9d4d-9b1a-4f9b-9042-8b783e779fd7.json"
+    },
+    "c4dfff4e-67ad-4467-9050-9c5ef88247d0": {
+        "documentId": "c4dfff4e-67ad-4467-9050-9c5ef88247d0",
+        "filename": "Construction-Work-Order-Format-02.pdf",
+        "contentType": "application/pdf",
+        "filePath": "E:\\GitHub\\intoAEC-AI-pricing-system\\server\\uploads\\c4dfff4e-67ad-4467-9050-9c5ef88247d0.pdf",
+        "status": "Completed",
+        "outputPath": "E:\\GitHub\\intoAEC-AI-pricing-system\\server\\output\\c4dfff4e-67ad-4467-9050-9c5ef88247d0.json"
+    },
+    "cb229d26-4002-4f58-8caf-09ac595839ca": {
+        "documentId": "cb229d26-4002-4f58-8caf-09ac595839ca",
+        "filename": "2019-10-21-example-template-project-construction-work-order-form-2-page-001-723x1024.jpg",
+        "contentType": "image/jpeg",
+        "filePath": "E:\\GitHub\\intoAEC-AI-pricing-system\\server\\uploads\\cb229d26-4002-4f58-8caf-09ac595839ca.jpg",
+        "status": "Completed",
+        "outputPath": "E:\\GitHub\\intoAEC-AI-pricing-system\\server\\output\\cb229d26-4002-4f58-8caf-09ac595839ca.json"
     }
 }
