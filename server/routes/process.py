@@ -52,53 +52,21 @@ async def process_document(
     logger.info(f"Initiating processing pipeline for document: {document_id}")
 
     try:
-        # Execute asynchronous pipeline
         ocr_response = await ocr_service.extract_text(str(file_path))
         parsed_data = await parser_service.parse(ocr_response)
-        final_json = await json_generator.generate(parsed_data, document_name=record["filename"])
+        final_json = await json_generator.generate(
+            parsed_data,
+            document_name=record["filename"],
+            document_id=document_id,
+            file_path=str(file_path)
+        )
         
         # Save final result
         storage.save_json_output(document_id, final_json)
         storage.update_document_status(document_id, "Completed")
         
-    except (NotImplementedError, ValueError) as nie:
-        logger.info(f"Pipeline placeholder or missing key caught: {str(nie)}. Falling back to mock output.")
-        
-        # Generate mock JSON matching ResultResponse requirements
-        mock_output = {
-            "documentName": record["filename"],
-            "items": [
-                {
-                    "description": "Concrete",
-                    "quantity": 100.0,
-                    "unit": "m3"
-                },
-                {
-                    "description": "Steel Reinforcement",
-                    "quantity": 5.5,
-                    "unit": "tons"
-                },
-                {
-                    "description": "Formwork",
-                    "quantity": 250.0,
-                    "unit": "m2"
-                }
-            ]
-        }
-        
-        # Write mock data to outputs and set status to Completed
-        try:
-            storage.save_json_output(document_id, mock_output)
-            storage.update_document_status(document_id, "Completed")
-        except Exception as file_err:
-            storage.update_document_status(document_id, "Failed")
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to save mock JSON output: {str(file_err)}"
-            )
-
     except Exception as e:
-        logger.error(f"Unexpected error processing document {document_id}: {str(e)}")
+        logger.error(f"Error processing document {document_id}: {str(e)}", exc_info=True)
         storage.update_document_status(document_id, "Failed")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
